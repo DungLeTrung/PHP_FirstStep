@@ -144,7 +144,7 @@
         </div>
     </div>
 
-    <table class="table table-hover table-dark table-striped table-bordered">
+    <table id="usersTable" class="table table-hover table-dark table-striped table-bordered">
         <thead class="">
             <tr>
                 <th scope="col">ID</th>
@@ -182,7 +182,6 @@
         $(document).ready(function(){
             $('#createUserForm').on('submit', function(event){
                 event.preventDefault();
-                console.log(123);
 
                 var formData = new FormData(this);
 
@@ -203,24 +202,53 @@
                 });
             });
         });
-        
+
         function editUser(id) {
-            fetch(`/users/${id}/edit`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('update_email').value = data.email;
-                    document.getElementById('update_first_name').value = data.first_name;
-                    document.getElementById('update_last_name').value = data.last_name;
-                    document.getElementById('update_age').value = data.age;
+            $.ajax({
+                url: `/users/${id}/edit`,
+                method: 'GET',
+                success: function(data) {
+                    $('#update_email').val(data.email);
+                    $('#update_first_name').val(data.first_name);
+                    $('#update_last_name').val(data.last_name);
+                    $('#update_age').val(data.age);
 
                     const imageUrl = data.imageUrl;
-                    document.getElementById('update_previewImage').src = imageUrl ? imageUrl : 'path/to/default/image.png';
-                    document.getElementById('updateUserForm').action = `/users/${data.id}`;
+                    $('#update_previewImage').attr('src', imageUrl ? imageUrl : 'path/to/default/image.png');
+                    $('#updateUserForm').attr('action', `/users/${data.id}`);
 
                     var updateUserModal = new bootstrap.Modal(document.getElementById('updateUserModal'));
                     updateUserModal.show();
-                });
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    alert("Error occurred while fetching user data.");
+                }
+            });
         }
+
+        $('#updateUserForm').on('submit', function(event) {
+            event.preventDefault();
+
+            var formData = new FormData(this);
+            var actionUrl = $(this).attr('action');
+
+            $.ajax({
+                url: actionUrl,
+                method: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    alert("User updated successfully!");
+                    location.reload();
+                },
+                error: function(xhr) {
+                    console.log(xhr.responseText);
+                    alert("Error occurred. Please try again.");
+                }
+            });
+        });
 
         function deleteUser(id) {
             document.getElementById('deleteUserForm').action = `/users/${id}`;
@@ -243,6 +271,21 @@
                 reader.readAsDataURL(file);
             }
         }
+
+        $(document).ready(function() {
+        $('#usersTable').DataTable({
+            "paging": true,
+            "lengthMenu": [3, 6, 9, 12],
+            "pageLength": 3,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "columnDefs": [
+                { "orderable": false, "targets": [5, 6] }
+            ]
+        });
+    });
     </script>
 @endsection
 
