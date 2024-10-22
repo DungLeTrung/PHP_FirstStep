@@ -42,6 +42,7 @@ class UsersController extends Controller
         }
 
         $validatedData['password'] = bcrypt($request->password);
+
         User::create($validatedData);
 
         return redirect('/users')->with('success', 'User created successfully.');
@@ -49,13 +50,8 @@ class UsersController extends Controller
 
     public function update(UserRequest $request, User $user)
     {
-        $validatedData = [
-            "email" => $request->email,
-            "first_name" => $request->first_name,
-            "last_name" => $request->last_name,
-            "age" => $request->age,
-        ];
-        
+        $validatedData = $request->validated();
+
         if ($request->hasFile('image')) {
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
