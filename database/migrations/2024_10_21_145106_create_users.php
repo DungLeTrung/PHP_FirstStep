@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->integer('age');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('email')->nullable()->after('id'); // Thêm trường email sau cột id
+            $table->string('password')->nullable()->after('email'); // Thêm trường password sau email
         });
     }
 

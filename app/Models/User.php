@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\File;
 
 class User extends Authenticatable
 {
@@ -16,9 +17,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'email',
+        'password',
         'first_name',
         'last_name',
         'age',
+        'imageUrl'
     ];
 
     /**
@@ -41,5 +45,15 @@ class User extends Authenticatable
 
     public function getAllUsers() {
         return $this->all();
+    }
+
+    public function uploadFile($file)
+    {
+        $publicPath = 'uploads';
+        $absolutePath = public_path($publicPath);
+        File::makeDirectory($absolutePath, 0755, true, true);
+        $file->move($absolutePath, $file->getClientOriginalName());
+
+        return $publicPath . '/' . $file->getClientOriginalName();
     }
 }

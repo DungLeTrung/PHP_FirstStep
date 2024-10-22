@@ -24,7 +24,7 @@ Route::get('users', [
     UsersController::class,
     'index'
 ])->name('users');
-
+Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::post('/users', [UsersController::class, 'store'])->name('users.store');
 Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
 Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');

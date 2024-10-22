@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
 {
@@ -13,16 +14,34 @@ class UsersController extends Controller
         $this->user=$user;
     }
 
-    public function index() {
-        $users = $this->user->getAllUsers();
+    public function index(Request $request) {
+    $search = $request->query('search');
 
-        return view('users.index', compact('users'));
+    if ($search) {
+        $users = User::where('first_name', 'LIKE', "%{$search}%")
+            ->orWhere('last_name', 'LIKE', "%{$search}%")
+            ->orWhere('email', 'LIKE', "%{$search}%")
+            ->get();
+    } else {
+        $users = $this->user->getAllUsers();
     }
+    return view('users.index', compact('users'));
+}
 
     public function store(UserRequest $request)
     {
-        $validatedData = $request->validated();
+        $validatedData = [
+            "email" => $request->email,
+            "first_name" => $request->first_name,
+            "last_name" => $request->last_name,
+            "age" => $request->age,
+        ];
 
+        if($request->hasFile('image')) {
+            $validatedData['imageUrl'] = $this->user->uploadFile($request->file('image'));
+        }
+
+        $validatedData['password'] = bcrypt($request->password);
         User::create($validatedData);
 
         return redirect('/users')->with('success', 'User created successfully.');
@@ -30,7 +49,25 @@ class UsersController extends Controller
 
     public function update(UserRequest $request, User $user)
     {
-        $validatedData = $request->validated();
+        $validatedData = [
+            "email" => $request->email,
+            "first_name" => $request->first_name,
+            "last_name" => $request->last_name,
+            "age" => $request->age,
+        ];
+        
+        if ($request->hasFile('image')) {
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+            $validatedData['imageUrl'] = $this->user->uploadFile($request->file('image'));
+        }
+
+        if ($request->filled('password')) {
+            $validatedData['password'] = bcrypt($request->password);
+        } else {
+            unset($validatedData['password']);
+        }
 
         $user->update($validatedData);
 
@@ -44,6 +81,9 @@ class UsersController extends Controller
 
     public function delete(User $user)
     {
+        if ($user->image) {
+            Storage::disk('public')->delete($user->image);
+        }
         $user->delete();
         return redirect('/users')->with('success', 'User deleted successfully.');
     }
