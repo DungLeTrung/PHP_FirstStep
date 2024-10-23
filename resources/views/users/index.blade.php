@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Home Page')
+@section('title', 'Account Management')
 
 @section('content')
     <h1 class="text-center">LIST USERS</h1>
@@ -15,16 +15,27 @@
         </div>
     @endif
 
-    <form method="GET" action="{{ route('users.index') }}">
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" name="search" placeholder="Search by first or last name" value="{{ request()->query('search') }}">
-            <button class="btn btn-primary" type="submit">Search</button>
-        </div>
-    </form>
-
     <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#createUserModal">
         Create User
     </button>
+
+    <div style="width: 50%">
+        <form method="GET" action="{{ route('users.index') }}">
+            <div class="input-group mb-3">
+                <select id="age_filter" name="age_filter" class="form-control">
+                    <option value="">Filter by Age Range</option>
+                    <option value="0-18">0 - 18 years</option>
+                    <option value="18-30">18 - 30 years</option>
+                    <option value="30-55">30 - 55 years</option>
+                    <option value="55-80">55 - 80 years</option>
+                </select>
+
+                <button class="btn btn-primary" type="submit">Search</button>
+
+                <button id="clearFilterBtn" type="button" class="btn btn-secondary ms-2">Clear Filter</button>
+            </div>
+        </form>
+    </div>
 
     <!-- Modal Create -->
     <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
@@ -144,6 +155,19 @@
         </div>
     </div>
 
+
+    {{-- Toasting --}}
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="userToast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <table id="usersTable" class="table table-hover table-dark table-striped table-bordered">
         <thead class="">
             <tr>
@@ -192,13 +216,19 @@
                     contentType: false,
                     processData: false,
                     success: function(response){
-                        alert("User created successfully!");
-                        location.reload();
+                        var toastElement = document.getElementById('userToast');
+                        var toast = new bootstrap.Toast(toastElement);
+                        $('.toast-body').text('User created successfully!');
+                        toast.show();
+
+                            location.reload();
                     },
                     error: function(xhr){
                         console.log(xhr.responseText);
-                        alert("Error occurred. Please try again.");
-                    }
+                        var toastElement = document.getElementById('userToast');
+                        var toast = new bootstrap.Toast(toastElement);
+                        $('.toast-body').text('Error occurred. Please try again.');
+                        toast.show();                    }
                 });
             });
         });
@@ -222,8 +252,10 @@
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
-                    alert("Error occurred while fetching user data.");
-                }
+                    var toastElement = document.getElementById('userToast');
+                        var toast = new bootstrap.Toast(toastElement);
+                        $('.toast-body').text('Error occurred. Please try again.');
+                        toast.show();                 }
             });
         }
 
@@ -240,13 +272,20 @@
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    alert("User updated successfully!");
-                    location.reload();
+                    var toastElement = document.getElementById('userToast');
+                        var toast = new bootstrap.Toast(toastElement);
+                        $('.toast-body').text('User updated successfully!');
+                        toast.show();
+
+                            location.reload();
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
-                    alert("Error occurred. Please try again.");
-                }
+                    var toastElement = document.getElementById('userToast');
+                        var toast = new bootstrap.Toast(toastElement);
+                        $('.toast-body').text('Error occurred. Please try again.');
+                        toast.show();
+                    }
             });
         });
 
@@ -284,6 +323,13 @@
             "columnDefs": [
                 { "orderable": false, "targets": [5, 6] }
             ]
+        });
+
+        $(document).ready(function() {
+            $('#age_filter').selectize({
+                create: false,
+                sortField: 'text'
+            });
         });
     });
     </script>

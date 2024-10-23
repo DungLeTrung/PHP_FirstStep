@@ -43,8 +43,19 @@ class User extends Authenticatable
         // You can specify any casting rules for your fields here, if necessary.
     ];
 
-    public function getAllUsers() {
-        return $this->all();
+    public function getAllUsers($request) {
+        $data = $this;
+
+        $ageFilter = $request->query('age_filter');
+
+        if($ageFilter) {
+            $ageRange = explode('-', $ageFilter);
+            $minAge = (int)$ageRange[0];
+            $maxAge = (int)$ageRange[1];
+
+            $data = $data->whereBetween('age', [$minAge, $maxAge]);
+        }
+        return $data->get();
     }
 
     public function uploadFile($file)
@@ -55,5 +66,11 @@ class User extends Authenticatable
         $file->move($absolutePath, $file->getClientOriginalName());
 
         return $publicPath . '/' . $file->getClientOriginalName();
+    }
+
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }
