@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('email')->nullable()->after('id'); // Thêm trường email sau cột id
-            $table->string('password')->nullable()->after('email'); // Thêm trường password sau email
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->decimal('price', 8, 2);
+            $table->integer('stock')->default(0);
+            $table->text('description')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('products');
     }
 };

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\ProductsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,21 +16,17 @@ use App\Http\Controllers\PagesController;
 |
 */
 
-Route::get('', [
-    PagesController::class,
-    'index'
-]);
-
-Route::get('users', [
-    UsersController::class,
-    'index'
-])->name('users');
+Route::get('', [PagesController::class,'index']);
+Route::get('/users', [UsersController::class,'index'])->name('users');
+// Route::get('/users/age_filter', [UsersController::class, 'age_filter'])->name('uers.age_filter');
 Route::get('/users', [UsersController::class, 'index'])->name('users.index');
 Route::post('/users', [UsersController::class, 'store'])->name('users.store');
 Route::get('/users/{user}/edit', [UsersController::class, 'edit'])->name('users.edit');
 Route::put('/users/{user}', [UsersController::class, 'update'])->name('users.update');
 Route::delete('/users/{user}', [UsersController::class, 'delete'])->name('users.delete');
 
+Route::get('/products', [ProductsController::class,'index'])->name('products');
+Route::get('/products', [ProductsController::class, 'index'])->name('products.index');
 // Route::get('users/{productName}/{id}', [
 //     UsersController::class,
 //     'detail'

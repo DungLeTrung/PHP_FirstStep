@@ -15,18 +15,9 @@ class UsersController extends Controller
     }
 
     public function index(Request $request) {
-    $search = $request->query('search');
-
-    if ($search) {
-        $users = User::where('first_name', 'LIKE', "%{$search}%")
-            ->orWhere('last_name', 'LIKE', "%{$search}%")
-            ->orWhere('email', 'LIKE', "%{$search}%")
-            ->get();
-    } else {
-        $users = $this->user->getAllUsers();
+        $users = $this->user->getAllUsers($request);
+        return view('users.index', compact('users'));
     }
-    return view('users.index', compact('users'));
-}
 
     public function store(UserRequest $request)
     {
