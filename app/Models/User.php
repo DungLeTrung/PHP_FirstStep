@@ -16,14 +16,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'email',
-        'password',
-        'first_name',
-        'last_name',
-        'age',
-        'imageUrl'
-    ];
+    protected $fillable = ['email', 'password', 'first_name', 'last_name', 'age', 'imageUrl', 'role', 'isVerify'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -43,15 +36,16 @@ class User extends Authenticatable
         // You can specify any casting rules for your fields here, if necessary.
     ];
 
-    public function getAllUsers($request) {
-        $data = $this;
+    public function getAllUsers($request)
+    {
+        $data = $this->where('role', '!=', 'Admin');;
 
         $ageFilter = $request->query('age_filter');
 
-        if($ageFilter) {
+        if ($ageFilter) {
             $ageRange = explode('-', $ageFilter);
-            $minAge = (int)$ageRange[0];
-            $maxAge = (int)$ageRange[1];
+            $minAge = (int) $ageRange[0];
+            $maxAge = (int) $ageRange[1];
 
             $data = $data->whereBetween('age', [$minAge, $maxAge]);
         }
@@ -68,9 +62,13 @@ class User extends Authenticatable
         return $publicPath . '/' . $file->getClientOriginalName();
     }
 
-
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function otps()
+    {
+        return $this->hasMany(Otp::class, 'email', 'email');
     }
 }
