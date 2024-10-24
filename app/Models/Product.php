@@ -16,6 +16,11 @@ class Product extends Model
         return $this->belongsToMany(Order::class)->withPivot('quantity')->withTimestamps();
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'categories_products');
+    }
+
     public function getAllProducts() {
         $data = $this;
 

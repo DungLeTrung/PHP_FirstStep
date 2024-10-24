@@ -47,7 +47,8 @@
                 </div>
 
                 <div class="modal-body">
-                    <form id="createUserForm" action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="createUserForm" action="{{ route('users.store') }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
@@ -71,8 +72,10 @@
                         </div>
                         <div class="mb-3">
                             <label for="image" class="form-label">Image</label>
-                            <img id="previewImage" src="" alt="User Image" class="img-thumbnail" width="100" style="display:none;">
-                            <input type="file" class="form-control" id="image" name="image" onchange="previewFile()">
+                            <img id="previewImage" src="" alt="User Image" class="img-thumbnail" width="100"
+                                style="display:none;">
+                            <input type="file" class="form-control" id="image" name="image"
+                                onchange="previewFile()">
                         </div>
                         <button type="submit" class="btn btn-success">Create User</button>
                     </form>
@@ -84,8 +87,8 @@
         </div>
     </div>
 
-        <!-- Modal Update -->
-    <div class="modal fade" id="updateUserModal" tabindex="-1" aria-labelledby="updateUserModalLabel" aria-hidden="true" >
+    <!-- Modal Update -->
+    <div class="modal fade" id="updateUserModal" tabindex="-1" aria-labelledby="updateUserModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -107,7 +110,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="update_first_name" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="update_first_name" name="first_name" required>
+                            <input type="text" class="form-control" id="update_first_name" name="first_name"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="update_last_name" class="form-label">Last Name</label>
@@ -119,8 +123,10 @@
                         </div>
                         <div class="mb-3" style="display: flex; flex-direction: column; gap: 10px">
                             <label for="update_image" class="form-label">Image</label>
-                            <img id="update_previewImage" src="" alt="User Image" class="img-thumbnail" width="100">
-                            <input type="file" class="form-control" id="update_image" name="image" accept="image/*" onchange="previewFile('update_image', 'update_previewImage')">
+                            <img id="update_previewImage" src="" alt="User Image" class="img-thumbnail"
+                                width="100">
+                            <input type="file" class="form-control" id="update_image" name="image"
+                                accept="image/*" onchange="previewFile('update_image', 'update_previewImage')">
                         </div>
                         <button type="submit" class="btn btn-success">Update User</button>
                     </form>
@@ -131,9 +137,12 @@
             </div>
         </div>
     </div>
+    </div>
+
 
     <!-- Modal Delete -->
-    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -158,12 +167,14 @@
 
     {{-- Toasting --}}
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="userToast" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="userToast" class="toast align-items-center text-white bg-primary border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
 
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
@@ -182,29 +193,30 @@
         </thead>
         <tbody>
             @foreach ($users as $user)
-            <tr>
-                <th scope="row">{{ $user->id }}</th>
-                <td>{{ $user->email }}</td>
-                <td>{{ $user->first_name }}</td>
-                <td>{{ $user->last_name }}</td>
-                <td>{{ $user->age }}</td>
-                <td>
-                    <img src="{{ $user->imageUrl }}" alt="User Image" width="200px" height="200px" class="img-thumbnail"/>
-                </td>
-                <td>
-                    <div class="flex">
-                        <button class="btn btn-light"  onclick="editUser({{ $user->id }})">Update</button>
-                        <button class="btn btn-danger" onclick="deleteUser({{ $user->id }})">Delete</button>
-                    </div>
-                </td>
-            </tr>
+                <tr>
+                    <th scope="row">{{ $user->id }}</th>
+                    <td>{{ $user->email }}</td>
+                    <td>{{ $user->first_name }}</td>
+                    <td>{{ $user->last_name }}</td>
+                    <td>{{ $user->age }}</td>
+                    <td>
+                        <img src="{{ $user->imageUrl }}" alt="User Image" width="200px" height="200px"
+                            class="img-thumbnail" />
+                    </td>
+                    <td>
+                        <div class="flex">
+                            <button class="btn btn-light" onclick="editUser({{ $user->id }})">Update</button>
+                            <button class="btn btn-danger" onclick="deleteUser({{ $user->id }})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
             @endforeach
         </tbody>
     </table>
 
     <script>
-        $(document).ready(function(){
-            $('#createUserForm').on('submit', function(event){
+        $(document).ready(function() {
+            $('#createUserForm').on('submit', function(event) {
                 event.preventDefault();
 
                 var formData = new FormData(this);
@@ -215,20 +227,21 @@
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function(response){
+                    success: function(response) {
                         var toastElement = document.getElementById('userToast');
                         var toast = new bootstrap.Toast(toastElement);
                         $('.toast-body').text('User created successfully!');
                         toast.show();
 
-                            location.reload();
+                        location.reload();
                     },
-                    error: function(xhr){
+                    error: function(xhr) {
                         console.log(xhr.responseText);
                         var toastElement = document.getElementById('userToast');
                         var toast = new bootstrap.Toast(toastElement);
                         $('.toast-body').text('Error occurred. Please try again.');
-                        toast.show();                    }
+                        toast.show();
+                    }
                 });
             });
         });
@@ -253,9 +266,10 @@
                 error: function(xhr) {
                     console.log(xhr.responseText);
                     var toastElement = document.getElementById('userToast');
-                        var toast = new bootstrap.Toast(toastElement);
-                        $('.toast-body').text('Error occurred. Please try again.');
-                        toast.show();                 }
+                    var toast = new bootstrap.Toast(toastElement);
+                    $('.toast-body').text('Error occurred. Please try again.');
+                    toast.show();
+                }
             });
         }
 
@@ -273,19 +287,19 @@
                 processData: false,
                 success: function(response) {
                     var toastElement = document.getElementById('userToast');
-                        var toast = new bootstrap.Toast(toastElement);
-                        $('.toast-body').text('User updated successfully!');
-                        toast.show();
+                    var toast = new bootstrap.Toast(toastElement);
+                    $('.toast-body').text('User updated successfully!');
+                    toast.show();
 
-                            location.reload();
+                    location.reload();
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
                     var toastElement = document.getElementById('userToast');
-                        var toast = new bootstrap.Toast(toastElement);
-                        $('.toast-body').text('Error occurred. Please try again.');
-                        toast.show();
-                    }
+                    var toast = new bootstrap.Toast(toastElement);
+                    $('.toast-body').text('Error occurred. Please try again.');
+                    toast.show();
+                }
             });
         });
 
@@ -297,8 +311,8 @@
         }
 
         function previewFile(inputId, imgId) {
-        const file = document.querySelector(`#${inputId}`).files[0];
-        const preview = document.querySelector(`#${imgId}`);
+            const file = document.querySelector(`#${inputId}`).files[0];
+            const preview = document.querySelector(`#${imgId}`);
 
             if (file) {
                 const reader = new FileReader();
@@ -312,27 +326,26 @@
         }
 
         $(document).ready(function() {
-        $('#usersTable').DataTable({
-            "paging": true,
-            "lengthMenu": [3, 6, 9, 12],
-            "pageLength": 3,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "columnDefs": [
-                { "orderable": false, "targets": [5, 6] }
-            ]
-        });
+            $('#usersTable').DataTable({
+                "paging": true,
+                "lengthMenu": [3, 6, 9, 12],
+                "pageLength": 3,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": [5, 6]
+                }]
+            });
 
-        $(document).ready(function() {
-            $('#age_filter').selectize({
-                create: false,
-                sortField: 'text'
+            $(document).ready(function() {
+                $('#age_filter').selectize({
+                    create: false,
+                    sortField: 'text'
+                });
             });
         });
-    });
     </script>
 @endsection
-
-
