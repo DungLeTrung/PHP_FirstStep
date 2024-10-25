@@ -15,11 +15,11 @@
         </div>
     @endif
 
-    <button type="button" class="btn btn-primary my-3" data-bs-toggle="modal" data-bs-target="#createUserModal">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
         Create User
     </button>
 
-    <div style="width: 50%">
+    {{-- <div style="width: 50%">
         <form method="GET" action="{{ route('users.index') }}">
             <div class="input-group mb-3">
                 <select id="age_filter" name="age_filter" class="form-control">
@@ -35,7 +35,7 @@
                 <button id="clearFilterBtn" type="button" class="btn btn-secondary ms-2">Clear Filter</button>
             </div>
         </form>
-    </div>
+    </div> --}}
 
     <!-- Modal Create -->
     <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
@@ -179,40 +179,51 @@
         </div>
     </div>
 
-    <table id="usersTable" class="table table-hover table-dark table-striped table-bordered">
-        <thead class="">
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">EMAIL</th>
-                <th scope="col">FIRST NAME</th>
-                <th scope="col">LAST NAME</th>
-                <th scope="col">AGE</th>
-                <th scope="col">IMAGE-URL</th>
-                <th scope="col">ACTION</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($users as $user)
+    <div class="my-5">
+        <table id="usersTable" class="table table-hover table-dark table-striped table-bordered my-2">
+            <thead class="">
                 <tr>
-                    <th scope="row">{{ $user->id }}</th>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->first_name }}</td>
-                    <td>{{ $user->last_name }}</td>
-                    <td>{{ $user->age }}</td>
-                    <td>
-                        <img src="{{ $user->imageUrl }}" alt="User Image" width="200px" height="200px"
-                            class="img-thumbnail" />
-                    </td>
-                    <td>
-                        <div class="flex">
-                            <button class="btn btn-light" onclick="editUser({{ $user->id }})">Update</button>
-                            <button class="btn btn-danger" onclick="deleteUser({{ $user->id }})">Delete</button>
-                        </div>
-                    </td>
+                    <th scope="col">ID</th>
+                    <th scope="col">EMAIL</th>
+                    <th scope="col">FIRST NAME</th>
+                    <th scope="col">LAST NAME</th>
+                    <th scope="col">AGE</th>
+                    <th scope="col">VERIFY</th>
+                    <th scope="col">IMAGE-URL</th>
+                    <th scope="col">ACTION</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach ($users as $user)
+                    <tr>
+                        <th scope="row">{{ $user->id }}</th>
+                        <td>{{ $user->email }}</td>
+                        <td>{{ $user->first_name }}</td>
+                        <td>{{ $user->last_name }}</td>
+                        <td>{{ $user->age }}</td>
+                        <td>
+                            @if ($user->isVerify == 1)
+                                <label style="color: green">VERIFIED</label>
+                            @else
+                                <label style="color: red">VERIFYING</label>
+                            @endif
+                        </td>
+                        <td>
+                            <img src="{{ $user->imageUrl }}" alt="User Image" width="200px" height="200px"
+                                class="img-thumbnail" />
+                        </td>
+                        <td>
+                            <div class="flex">
+                                <button class="btn btn-light" onclick="editUser({{ $user->id }})">Update</button>
+                                <button class="btn btn-danger" onclick="deleteUser({{ $user->id }})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
 
     <script>
         $(document).ready(function() {
@@ -328,7 +339,7 @@
         $(document).ready(function() {
             $('#usersTable').DataTable({
                 "paging": true,
-                "lengthMenu": [3, 6, 9, 12],
+                "lengthMenu": [3, 6, 9, 10],
                 "pageLength": 3,
                 "searching": true,
                 "ordering": true,
