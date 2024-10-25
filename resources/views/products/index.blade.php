@@ -29,25 +29,36 @@
                     <form id="productForm" method="POST" action="">
                         @csrf
                         <input type="hidden" id="id" name="id">
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="name">Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="description">Description</label>
                             <textarea class="form-control" id="description" name="description"></textarea>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="price">Price</label>
                             <input type="number" step="0.01" class="form-control" id="price" name="price"
                                 required>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="stock">Stock</label>
                             <input type="number" class="form-control" id="stock" name="stock" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="category">Category</label>
+                            <select id="category" name="category[]" class="form-control selectpicker" multiple
+                                style="border: 1px solid #ced4da; border-radius: 0.375rem; padding: 0.375rem; background-color: #f8f9fa;"
+                                data-live-search="true">
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+
                         </div>
                     </form>
                 </div>
@@ -76,8 +87,11 @@
                     <form id="deleteProductForm" action="" method="POST">
                         @csrf
                         <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <div style="display: flex; gap: 5px">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+
                     </form>
                 </div>
             </div>
@@ -95,6 +109,7 @@
                 <th scope="col">DESCRIPTION</th>
                 <th scope="col">PRICE</th>
                 <th scope="col">STOCK</th>
+                <th scope="col">CATEGORY</th>
                 <th scope="col">ACTION</th>
             </tr>
         </thead>
@@ -106,6 +121,11 @@
                     <td>{{ $product->description }}</td>
                     <td>{{ $product->price }}</td>
                     <td>{{ $product->stock }}</td>
+                    <td>
+                        @foreach ($product->categories as $category)
+                            <span class="badge bg-info text-dark p-10">{{ $category->name }}</span>
+                        @endforeach
+                    </td>
                     <td>
                         <div class="flex">
                             <button class="btn btn-light updateProductBtn" data-id="{{ $product->id }}"
@@ -201,5 +221,9 @@
                 }]
             });
         })
+
+        $(document).ready(function() {
+            $('.selectpicker').selectpicker();
+        });
     </script>
 @endsection

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PagesController;
@@ -21,7 +23,9 @@ Route::get('/', [PagesController::class,'index']);
 
 Route::group(['middleware' => ['auth']], function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+    Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 });
 
 Route::group(['middleware' => ['auth', 'admin']], function () {
@@ -39,6 +43,13 @@ Route::group(['middleware' => ['auth', 'admin']], function () {
     Route::post('/products', [ProductsController::class, 'store'])->name('products.store');
     Route::put('/products/{id}', [ProductsController::class, 'update'])->name('products.update');
     Route::delete('/products/{id}', [ProductsController::class, 'delete'])->name('products.delete');
+    Route::get('/products/{id}/edit', [ProductsController::class, 'edit'])->name('products.edit');
+
+    Route::get('/categories', [CategoriesController::class,'index'])->name('category');
+    Route::get('/categories', [CategoriesController::class,'index'])->name('category.index');
+    Route::post('/categories', [CategoriesController::class, 'store'])->name('category.store');
+    Route::put('/categories/{id}', [CategoriesController::class, 'update'])->name('category.update');
+    Route::delete('/categories/{id}', [CategoriesController::class, 'delete'])->name('category.delete');
 });
 
 
