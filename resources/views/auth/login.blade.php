@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <div class="row justify-content-center mt-5">
+    <div class="row justify-content-center my-5">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header text-center">
@@ -23,8 +23,9 @@
                         </div>
 
                         <button type="submit" class="btn btn-secondary w-100">Login</button>
-                        <div style="padding-top: 10px; text-align: center">
-                            <a href="/send-otp-forgot-password" style="cursor: pointer">Forgot Password!</a>
+                        <div style="padding-top: 10px; text-align: center;">
+                            <a style="margin-right: 10px" href="/send-otp-forgot-password" style="cursor: pointer">Forgot Password!</a>
+                            <a href="{{ route('auth.google') }}" class="btn btn-danger">Login with Google</a>
                         </div>
                     </form>
                 </div>

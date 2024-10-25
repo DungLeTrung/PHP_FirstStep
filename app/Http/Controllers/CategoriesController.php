@@ -26,7 +26,7 @@ class CategoriesController extends Controller
             'name' => $request->name,
         ];
 
-        Category::create($validatedData);
+        $this->category->create($validatedData);
 
         return redirect('/categories')->with('success', 'Product created successfully.');
     }
@@ -37,7 +37,7 @@ class CategoriesController extends Controller
             'name' => $request->name,
         ];
 
-        $category = Category::findOrFail($id);
+        $category = $this->category->findOrFail($id);
 
         $category->update($validatedData);
 
@@ -46,7 +46,7 @@ class CategoriesController extends Controller
 
     public function delete($id)
     {
-        $category = Category::findOrFail($id);
+        $category = $this->category->findOrFail($id);
 
         $category->delete();
 

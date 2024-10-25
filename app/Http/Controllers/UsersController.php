@@ -35,7 +35,7 @@ class UsersController extends Controller
 
         $validatedData['password'] = bcrypt($request->password);
 
-        User::create($validatedData);
+       $this->user->create($validatedData);
 
         return redirect('/users')->with('success', 'User created successfully.');
     }
