@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+    protected $user;
+    protected $otp;
+
+    public function __construct(User $user, Otp $otp)
+    {
+        $this->user = $user;
+        $this->otp = $otp;
+    }
+
     public function index()
     {
         return view('auth.register');
@@ -29,14 +38,14 @@ class AuthController extends Controller
             'isVerify' => false,
         ];
 
-        User::create($validatedData);
+        $this->user->create($validatedData);
 
         $otpCode = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
         $expirationTime = now()->addMinutes(10);
 
         $hashedOtpCode = Hash::make($otpCode);
 
-        Otp::create([
+        $this->otp->create([
             'otp_code' => $hashedOtpCode,
             'expired' => $expirationTime,
             'email' => $request->email,
@@ -68,13 +77,13 @@ class AuthController extends Controller
         ]);
 
         $email = $request->email;
-        $user = User::where('email', $email)->first();
+        $user = $this->user->where('email', $email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $otp = Otp::where('email', $request->email)
+        $otp = $this->otp->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -113,13 +122,13 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = $this->user->where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $otp = Otp::where('email', $request->email)
+        $otp = $this->otp->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -137,7 +146,7 @@ class AuthController extends Controller
             $otp->expired = $newExpirationTime;
             $otp->save();
         } else {
-            Otp::create([
+            $this->otp->create([
                 'otp_code' => $hashedOtp,
                 'expired' => $newExpirationTime,
                 'email' => $request->email,
@@ -192,13 +201,13 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = $this->user->where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $otp = Otp::where('email', $request->email)
+        $otp = $this->otp->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -216,7 +225,7 @@ class AuthController extends Controller
             $otp->expired = $newExpirationTime;
             $otp->save();
         } else {
-            Otp::create([
+            $this->otp->create([
                 'otp_code' => $hashedOtp,
                 'expired' => $newExpirationTime,
                 'email' => $request->email,
@@ -250,13 +259,13 @@ class AuthController extends Controller
         ]);
 
         $email = $request->email;
-        $user = User::where('email', $email)->first();
+        $user = $this->user->where('email', $email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $otp = Otp::where('email', $request->email)
+        $otp = $this->otp->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -293,7 +302,7 @@ class AuthController extends Controller
             'new_password' => 'nullable|string|min:8',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = $this->user->where('email', $request->email)->first();
         if (!$user) {
             return response()->json(['message' => 'User not found.'], 404);
         }

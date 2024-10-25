@@ -16,7 +16,8 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = ['email', 'password', 'first_name', 'last_name', 'age', 'imageUrl', 'role', 'isVerify'];
+    protected $fillable = ['email', 'password', 'first_name', 'last_name', 'age', 'imageUrl', 'role', 'isVerify', 'social_id',
+        'social_type'];
 
     /**
      * The attributes that should be hidden for serialization.

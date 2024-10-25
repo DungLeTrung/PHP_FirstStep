@@ -85,7 +85,7 @@
                     }
 
                     $.ajax({
-                        url: '/register',
+                        url: '{{ route('register' }}',
                         method: 'POST',
                         data: formData,
                         success: function(response) {

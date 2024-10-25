@@ -10,15 +10,19 @@ use Illuminate\Http\Request;
 class ProductsController extends Controller
 {
     protected $product;
-    public function __construct(Product $product)
+    protected $category;
+
+    public function __construct(Product $product, Category $category)
     {
         $this->product = $product;
+        $this->category = $category;
+
     }
 
     public function index()
     {
         $products = $this->product->getAllProducts();
-        $categories = Category::all();
+        $categories = $this->category->all();
         return view('products.index', compact('products', 'categories'));
     }
 
@@ -31,7 +35,7 @@ class ProductsController extends Controller
             'price' => $request->price,
         ];
 
-        $product = Product::create($validatedData);
+        $product = $this->product->create($validatedData);
 
         if ($request->has('category')) {
             $product->categories()->sync($request->category);
@@ -50,7 +54,7 @@ class ProductsController extends Controller
             'category' => 'array',
         ]);
 
-        $product = Product::findOrFail($id);
+        $product = $this->product->findOrFail($id);
 
         $product->update($validatedData);
 
@@ -61,7 +65,7 @@ class ProductsController extends Controller
 
     public function delete($id)
     {
-        $product = Product::findOrFail($id);
+        $product = $this->product->findOrFail($id);
 
         $product->categories()->detach();
         $product->delete();
@@ -71,8 +75,8 @@ class ProductsController extends Controller
 
     public function edit($id)
     {
-        $product = Product::with('categories')->findOrFail($id);
-        $categories = Category::all();
+        $product = $this->product->with('categories')->findOrFail($id);
+        $categories = $this->category->all();
 
         return view('products.edit', compact('product', 'categories'));
     }

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\GoogleSocialiteController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -75,4 +77,5 @@ Route::post('/verify-otp-forgot-password', [AuthController::class, 'verifyOtpFor
 Route::get('/forgot-password/reset', [AuthController::class, 'showPasswordResetForm'])->name('password_reset.otp');
 Route::post('/forgot-password/reset', [AuthController::class, 'updatePassword'])->name('password_reset_password.otp');
 
-
+Route::get('auth/google', [GoogleSocialiteController::class, 'redirectToGoogle'])->name('auth.google');;
+Route::get('auth/google/callback', [GoogleSocialiteController::class, 'handleCallback']);
