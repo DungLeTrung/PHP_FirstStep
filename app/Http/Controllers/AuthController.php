@@ -7,7 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Mail\OtpMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
@@ -83,7 +85,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $otp = $this->otp->where('email', $request->email)
+        $otp = $this->otp
+            ->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -105,17 +108,12 @@ class AuthController extends Controller
         }
     }
 
+    //SEND OTP
     public function showSendOTPForm()
     {
         return view('auth.send_otp_register');
     }
 
-    public function showSendOTPForgotPassForm()
-    {
-        return view('auth.send_otp_forgot_password');
-    }
-
-    //SEND OTP
     public function sendOtp(Request $request)
     {
         $request->validate([
@@ -128,7 +126,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $otp = $this->otp->where('email', $request->email)
+        $otp = $this->otp
+            ->where('email', $request->email)
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -194,54 +193,67 @@ class AuthController extends Controller
         return redirect()->route('login')->withSuccess('You have logged out successfully!');
     }
 
-    //SEND OTP
+    //SEND OTP FORGOT PASSWORD
+    public function showSendOTPForgotPassForm()
+    {
+        return view('auth.send_otp_forgot_password');
+    }
+
     public function sendOtpForgotPassword(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $user = $this->user->where('email', $request->email)->first();
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
-
-        $otp = $this->otp->where('email', $request->email)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        if ($otp && now()->diffInMinutes($otp->created_at) < 10) {
-            return response()->json(['message' => 'OTP is still valid.'], 400);
-        }
-
-        $newOtpCode = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-        $hashedOtp = Hash::make($newOtpCode);
-        $newExpirationTime = now()->addMinutes(10);
-
-        if ($otp) {
-            $otp->otp_code = $hashedOtp;
-            $otp->updated_at = now();
-            $otp->expired = $newExpirationTime;
-            $otp->save();
-        } else {
-            $this->otp->create([
-                'otp_code' => $hashedOtp,
-                'expired' => $newExpirationTime,
-                'email' => $request->email,
-                'updated_at' => now(),
+        try {
+            DB::beginTransaction();
+            $request->validate([
+                'email' => 'required|email',
             ]);
+
+            $user = $this->user->where('email', $request->email)->first();
+
+            if (!$user) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+
+            $otp = $this->otp
+                ->where('email', $request->email)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($otp && now()->diffInMinutes($otp->created_at) < 10) {
+                return response()->json(['message' => 'OTP is still valid.'], 400);
+            }
+
+            $newOtpCode = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+            $hashedOtp = Hash::make($newOtpCode);
+            $newExpirationTime = now()->addMinutes(10);
+
+            if ($otp) {
+                $otp->otp_code = $hashedOtp;
+                $otp->updated_at = now();
+                $otp->expired = $newExpirationTime;
+                $otp->save();
+            } else {
+                $this->otp->create([
+                    'otp_code' => $hashedOtp,
+                    'expired' => $newExpirationTime,
+                    'email' => $request->email,
+                    'updated_at' => now(),
+                ]);
+            }
+
+            Mail::to($request->email)->send(new OtpMail($newOtpCode, $newExpirationTime));
+            DB::commit();
+            return response()->json(
+                [
+                    'message' => 'OTP sent successfully.',
+                    'redirect' => route('verify_forgot_password.otp', ['email' => $request->email]),
+                ],
+                200,
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error send otp forgot password: ' . $e->getMessage());
+            return redirect()->back();
         }
-
-        Mail::to($request->email)->send(new OtpMail($newOtpCode, $newExpirationTime));
-
-        return response()->json(
-            [
-                'message' => 'OTP sent successfully.',
-                'redirect' => route('verify_forgot_password.otp', ['email' => $request->email]),
-            ],
-            200,
-        );
     }
 
     public function showOtpVerificationForgotPasswordForm()
@@ -253,40 +265,49 @@ class AuthController extends Controller
 
     public function verifyOtpForPasswordReset(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'otp_code' => 'required|string|size:4',
-        ]);
+        try {
+            DB::beginTransaction();
+            $request->validate([
+                'email' => 'required|email',
+                'otp_code' => 'required|string|size:4',
+            ]);
 
-        $email = $request->email;
-        $user = $this->user->where('email', $email)->first();
+            $email = $request->email;
+            $user = $this->user->where('email', $email)->first();
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
-        }
+            if (!$user) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
 
-        $otp = $this->otp->where('email', $request->email)
-            ->orderBy('created_at', 'desc')
-            ->first();
+            $otp = $this->otp
+                ->where('email', $request->email)
+                ->orderBy('created_at', 'desc')
+                ->first();
 
-        if (!$otp) {
-            return response()->json(['message' => 'No OTP found for this email.'], 404);
-        }
+            if (!$otp) {
+                return response()->json(['message' => 'No OTP found for this email.'], 404);
+            }
 
-        if ($otp->expired < now()) {
-            return response()->json(['message' => 'OTP has expired.'], 400);
-        }
+            if ($otp->expired < now()) {
+                return response()->json(['message' => 'OTP has expired.'], 400);
+            }
 
-        if ($otp && Hash::check($request->otp_code, $otp->otp_code)) {
-            return response()->json(
-                [
-                    'message' => 'OTP sent successfully.',
-                    'redirect' => route('password_reset.otp', ['email' => $request->email]),
-                ],
-                200,
-            );
-        } else {
-            return response()->json(['message' => 'Invalid OTP.'], 400);
+            if ($otp && Hash::check($request->otp_code, $otp->otp_code)) {
+                DB::commit();
+                return response()->json(
+                    [
+                        'message' => 'OTP valid!!!.',
+                        'redirect' => route('password_reset.otp', ['email' => $request->email]),
+                    ],
+                    200,
+                );
+            } else {
+                return response()->json(['message' => 'Invalid OTP.'], 400);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error verify otp forgot password: ' . $e->getMessage());
+            return redirect()->back();
         }
     }
 
@@ -297,19 +318,32 @@ class AuthController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'new_password' => 'nullable|string|min:8',
-        ]);
+        try {
+            DB::beginTransaction();
+            $request->validate([
+                'email' => 'required|email',
+                'new_password' => 'nullable|string|min:8',
+            ]);
 
-        $user = $this->user->where('email', $request->email)->first();
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
+            $user = $this->user->where('email', $request->email)->first();
+            if (!$user) {
+                return response()->json(['message' => 'User not found.'], 404);
+            }
+
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+            DB::commit();
+            return response()->json(
+                [
+                    'message' => 'Password changed successfully!!!',
+                    'redirect' => route('login'),
+                ],
+                200,
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating password: ' . $e->getMessage());
+            return redirect()->back();
         }
-
-        $user->password = Hash::make($request->new_password);
-        $user->save();
-
-        return response()->json(['message' => 'Password updated successfully.'], 200);
     }
 }

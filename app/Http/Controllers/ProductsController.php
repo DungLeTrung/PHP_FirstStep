@@ -6,6 +6,8 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductsController extends Controller
 {
@@ -28,49 +30,73 @@ class ProductsController extends Controller
 
     public function store(ProductRequest $request)
     {
-        $validatedData = [
-            'name' => $request->name,
-            'description' => $request->description,
-            'stock' => $request->stock,
-            'price' => $request->price,
-        ];
+        try {
+            DB::beginTransaction();
+            $validatedData = [
+                'name' => $request->name,
+                'description' => $request->description,
+                'stock' => $request->stock,
+                'price' => $request->price,
+            ];
 
-        $product = $this->product->create($validatedData);
+            $product = $this->product->create($validatedData);
 
-        if ($request->has('category')) {
-            $product->categories()->sync($request->category);
+            if ($request->has('category')) {
+                $product->categories()->sync($request->category);
+            }
+            DB::commit();
+            return redirect('/products')->with('success', 'Product created successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating products: ' . $e->getMessage());
+            return redirect()->back();
         }
-
-        return redirect('/products')->with('success', 'Product created successfully.');
     }
 
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'stock' => 'required|integer',
-            'price' => 'required|numeric',
-            'category' => 'array',
-        ]);
+        try {
+            DB::beginTransaction();
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'stock' => 'required|integer',
+                'price' => 'required|numeric',
+                'category' => 'array',
+            ]);
 
-        $product = $this->product->findOrFail($id);
+            $product = $this->product->findOrFail($id);
 
-        $product->update($validatedData);
+            $product->update($validatedData);
 
-        $product->categories()->sync($request->category);
+            $product->categories()->sync($request->category);
+            DB::commit();
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+            return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating products: ' . $e->getMessage());
+            return redirect()->back();
+        }
+
     }
 
     public function delete($id)
     {
-        $product = $this->product->findOrFail($id);
+        try {
+            DB::beginTransaction();
+            $product = $this->product->findOrFail($id);
 
-        $product->categories()->detach();
-        $product->delete();
+            $product->categories()->detach();
+            $product->delete();
+            DB::commit();
+            return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting products: ' . $e->getMessage());
+            return redirect()->back();
+        }
 
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 
     public function edit($id)

@@ -58,7 +58,7 @@
                         if (response.redirect) {
                             window.location.href = response.redirect;
                         }
-                    }, 5000);
+                    }, 3000);
                 },
                 error: function(xhr) {
                     formValidAjax(xhr);

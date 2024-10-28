@@ -71,7 +71,6 @@ class OrderController extends Controller
             return redirect()->route('orders.index')->with('success', 'Order created successfully and stock updated.');
         } catch (\Exception $e) {
             DB::rollback();
-
             return redirect()
                 ->back()
                 ->withErrors(['error' => 'An error occurred: ' . $e->getMessage()])

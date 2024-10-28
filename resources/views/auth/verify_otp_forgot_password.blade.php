@@ -45,7 +45,7 @@
                             if (response.redirect) {
                                 window.location.href = response.redirect;
                             }
-                        }, 5000);
+                        }, 3000);
                         $('#otpVerificationForm')[0].reset();
                     },
                     error: function(xhr) {
