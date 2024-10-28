@@ -36,22 +36,22 @@
                         <a class="nav-link {{ request()->is('contact') ? 'active' : '' }}" href="#">Contact</a>
                     </li>
                     @guest
-                        <li class="nav-item" style="background-color: rgb(230, 14, 28); border-radius: 5%; margin-right: 10px">
-                            <a class="nav-link {{ request()->is('login') ? 'active' : '' }}" href="/login">
-                                <label style=" margin-left: 5px; margin-right: 5px; cursor: pointer; font-weight: bold">Sign In</label>
-                            </a>
-                        </li>
+                    <li class="nav-item" style="background-color: rgb(230, 14, 28); border-radius: 5%; margin-right: 10px; height: 40px;">
+                        <a class="padding: 5px; nav-link d-flex align-items-center justify-content-center" href="/login" style="height: 100%;">
+                            <label style="margin: 0; cursor: pointer; font-weight: bold; color: white;">Sign In</label>
+                        </a>
+                    </li>
                         <li class="nav-item" style="background-color: aqua; border-radius: 5%; ">
-                            <a class="nav-link {{ request()->is('register') ? 'active' : '' }}" href="/register">
-                                <label style="color: black; margin-left: 5px; margin-right: 5px; cursor: pointer; font-weight: bold">Sign Up</label>
+                            <a class="padding: 5px; nav-link d-flex align-items-center justify-content-center" href="/register" style="height: 100%;">
+                                <label style="margin: 0; cursor: pointer; font-weight: bold; color: black;">Sign Up</label>
                             </a>
                         </li>
                     @endguest
                     @auth
                         <li class="nav-item" style="background-color: greenyellow; border-radius: 5%;">
-                            <a class="nav-link" href="{{ route('logout') }}"
+                            <a class="nav-link padding: 5px; nav-link d-flex align-items-center justify-content-center" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                <label style="color: black; margin-left: 5px; margin-right: 5px; cursor: pointer">Log out</label>
+                                <label style="margin: 0; cursor: pointer; font-weight: bold; color: black;">Log out</label>
                             </a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf

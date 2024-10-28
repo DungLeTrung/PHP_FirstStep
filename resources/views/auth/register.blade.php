@@ -95,7 +95,7 @@
                                     window.location.href = response.redirect;
                                 }
                                 $('#registerForm')[0].reset();
-                            }, 5000);
+                            }, 3000);
                         },
                         error: function(xhr) {
                             formValidAjax(xhr);
