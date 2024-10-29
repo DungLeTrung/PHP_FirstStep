@@ -43,6 +43,9 @@ class OrderController extends Controller
                 return response()->json(['message' => 'User not found.'], 404);
             }
 
+            // Lưu trữ sản phẩm vào session
+            session(['order_products' => $request->products]);
+
             $order = new Order();
             $order->user_id = $userId;
             $order->status = 'PENDING';
@@ -124,5 +127,64 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to retrieve order.', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    public function updateOrder(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $userId = Auth::id();
+
+            $order = $this->orderModel->where('user_id', $userId)->find($id);
+            if (!$order) {
+                return response()->json(['message' => 'Order not found.'], 404);
+            }
+
+            $request->validate([
+                'products' => 'required|array',
+                'products.*.id' => 'required|exists:products,id',
+                'products.*.quantity' => 'required|integer|min:1',
+            ]);
+
+            // Cập nhật sản phẩm trong session
+            session(['order_products' => $request->products]);
+
+            $totalPrice = 0;
+
+            foreach ($request->products as $product) {
+                $productModel = $this->productModel->find($product['id']);
+
+                if ($productModel->stock < $product['quantity']) {
+                    return response()->json(['message' => 'Not enough stock for product: ' . $productModel['name']], 400);
+                }
+
+                $subtotal = $productModel->price * $product['quantity'];
+                $totalPrice += $subtotal;
+
+                $order->products()->syncWithoutDetaching([$product['id'] => ['quantity' => $product['quantity']]]);
+
+                $productModel->stock -= $product['quantity'];
+                $productModel->save();
+            }
+
+            $order->total_price = $totalPrice;
+            $order->save();
+
+            DB::commit();
+            return response()->json(['message' => 'Order updated successfully.', 'order' => new OrderResource($order)], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating order: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to update order.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function forgetOrder()
+    {
+        // Xóa sản phẩm khỏi session
+        session()->forget('order_products');
+
+        return response()->json(['message' => 'Order products cleared from session.'], 200);
     }
 }

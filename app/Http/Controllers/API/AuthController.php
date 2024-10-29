@@ -72,7 +72,6 @@ class AuthController extends Controller
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'age' => 'nullable|integer|min:0|max:100',
-                'imageUrl' => 'nullable|image|mimes:jpg,jpeg,png,gif,JPG,PNG|max:2048',
                 'email' => 'required|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8',
             ]);
@@ -89,7 +88,7 @@ class AuthController extends Controller
             return response()->json(
                 [
                     'message' => 'User registered successfully',
-                    'user' => $user,
+                    'user' => new UserResource($user),
                 ],
                 201,
             );
