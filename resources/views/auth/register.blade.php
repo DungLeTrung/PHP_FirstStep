@@ -12,7 +12,7 @@
                     </div>
                     <div class="card-body">
 
-                        <form id="registerForm">
+                        <form id="registerForm" action="{route('register'}}">
                             @csrf
 
                             <!-- Email -->
@@ -85,7 +85,7 @@
                     }
 
                     $.ajax({
-                        url: '{{ route('register' }}',
+                        url: $(this).attr('action'),
                         method: 'POST',
                         data: formData,
                         success: function(response) {
