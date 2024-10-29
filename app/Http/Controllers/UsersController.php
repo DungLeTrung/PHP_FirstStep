@@ -26,8 +26,9 @@ class UsersController extends Controller
 
     public function store(UserRequest $request)
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             $validatedData = [
                 'email' => $request->email,
                 'first_name' => $request->first_name,
@@ -53,8 +54,9 @@ class UsersController extends Controller
 
     public function update(UserRequest $request, User $user)
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             $validatedData = $request->validated();
 
             if ($request->hasFile('image')) {
@@ -88,8 +90,9 @@ class UsersController extends Controller
 
     public function delete(User $user)
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
             }

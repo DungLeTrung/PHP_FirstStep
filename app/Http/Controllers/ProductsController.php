@@ -30,8 +30,9 @@ class ProductsController extends Controller
 
     public function store(ProductRequest $request)
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             $validatedData = [
                 'name' => $request->name,
                 'description' => $request->description,
@@ -55,8 +56,9 @@ class ProductsController extends Controller
 
     public function update(Request $request, $id)
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
@@ -83,8 +85,9 @@ class ProductsController extends Controller
 
     public function delete($id)
     {
+        DB::beginTransaction();
+
         try {
-            DB::beginTransaction();
             $product = $this->product->findOrFail($id);
 
             $product->categories()->detach();

@@ -24,10 +24,10 @@ class UserRequest extends FormRequest
         return [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'age' => 'required|integer|min:0|max:100',
+            'age' => 'nullable|integer|min:0|max:100',
             'imageUrl' => 'nullable|image|mimes:jpg,jpeg,png,gif,JPG,PNG|max:2048',
             'email' => 'required|email|max:255|unique:users,email,' . ($this->user->id ?? ''),
-            'password' => 'nullable|string|min:8',
+            'password' => 'required|string|min:8',
         ];
     }
 }

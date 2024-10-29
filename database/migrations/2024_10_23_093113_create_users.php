@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('email');
+            $table->string('password');
+            $table->string('imageUrl');
+            $table->integer('age');
             $table->enum('role', ['User', 'Admin'])->default('User');
             $table->boolean('isVerify')->default(false);
+            $table->string('social_id')->nullable();
+            $table->string('social_type')->nullable();
         });
     }
 
