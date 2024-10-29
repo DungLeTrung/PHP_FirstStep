@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,12 +25,16 @@ Route::post('/verify-account', [AuthController::class, 'verifyAccount']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
 Route::middleware('auth:api')->group(function () {
+    //User
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/change-password', [UserController::class, 'changePassword']);
+    Route::put('/edit-profile', [UserController::class, 'editProfile']);
+    Route::get('/detail-profile', [UserController::class, 'detailProfile']);
+    //Order
+    Route::post('/orders', [OrderController::class, 'createOrder']);
+    Route::get('/orders', [OrderController::class, 'getOrder']);
+    Route::get('/orders/{id}', [OrderController::class, 'getOrderById']);
 
     Route::middleware('admin.api')->group(function () {
         //User
@@ -42,6 +48,13 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/categories/{id}', [CategoryController::class, 'updateCategory']);
         Route::delete('/categories/{id}', [CategoryController::class, 'deleteCategory']);
         Route::get('/categories/{id}', [CategoryController::class, 'getCategoryById']);
+
+        //Products
+        Route::get('/products', [ProductController::class, 'getAllProducts']);
+        Route::post('/products', [ProductController::class, 'createProduct']);
+        Route::put('/products/{id}', [ProductController::class, 'updateProduct']);
+        Route::delete('/products/{id}', [ProductController::class, 'deleteProduct']);
+        Route::get('/products/{id}', [ProductController::class, 'getProductById']);
     });
 });
 
