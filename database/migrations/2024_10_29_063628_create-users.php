@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('first_name');
-            $table->string('last_name');
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
             $table->string('email');
             $table->string('password');
-            $table->string('imageUrl');
-            $table->integer('age');
+            $table->string('imageUrl')->nullable();
+            $table->integer('age')->nullable();
             $table->enum('role', ['User', 'Admin'])->default('User');
             $table->boolean('isVerify')->default(false);
             $table->string('social_id')->nullable();
             $table->string('social_type')->nullable();
+            $table->timestamps();
         });
     }
 

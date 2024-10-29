@@ -17,7 +17,6 @@ return new class extends Migration
             $table->timestamp('expired');
             $table->string('email');
             $table->timestamps();
-            $table->string('email');
         });
     }
 
