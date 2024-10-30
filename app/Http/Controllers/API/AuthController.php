@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use App\Jobs\SendOtpEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -41,6 +42,11 @@ class AuthController extends Controller
 
             /** @var \App\Models\User $user **/
             $user = Auth::user();
+
+            if (!$user->isVerify) {
+                return response()->json(['message' => 'Account not verified.'], 403);
+            }
+
             $token = $user->createToken('Personal Token')->accessToken;
 
             DB::commit();
@@ -116,7 +122,6 @@ class AuthController extends Controller
             ]);
 
             $user = $this->userModel->where('email', $request->email)->first();
-
             if (!$user) {
                 return response()->json(['message' => 'User not found.'], 404);
             }
@@ -136,7 +141,7 @@ class AuthController extends Controller
 
             if ($otp) {
                 $otp->otp_code = $hashedOtp;
-                $otp->updated_at = now()->setTimezone('Asia/Ho_Chi_Minh');
+                $otp->updated_at = now();
                 $otp->expired = $newExpirationTime;
                 $otp->save();
             } else {
@@ -144,12 +149,12 @@ class AuthController extends Controller
                     'otp_code' => $hashedOtp,
                     'expired' => $newExpirationTime,
                     'email' => $request->email,
-                    'updated_at' => now()->setTimezone('Asia/Ho_Chi_Minh'),
-                    'created_at' => now()->setTimezone('Asia/Ho_Chi_Minh'),
+                    'updated_at' => now(),
+                    'created_at' => now(),
                 ]);
             }
 
-            Mail::to($request->email)->send(new OtpMail($newOtpCode, $newExpirationTime));
+            SendOtpEmail::dispatch($request->email, $newOtpCode, $newExpirationTime)->onQueue('email');
 
             DB::commit();
 
