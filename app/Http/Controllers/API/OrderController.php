@@ -43,9 +43,6 @@ class OrderController extends Controller
                 return response()->json(['message' => 'User not found.'], 404);
             }
 
-            // Lưu trữ sản phẩm vào session
-            session(['order_products' => $request->products]);
-
             $order = new Order();
             $order->user_id = $userId;
             $order->status = 'PENDING';
@@ -129,62 +126,34 @@ class OrderController extends Controller
         }
     }
 
-    public function updateOrder(Request $request, $id)
+    public function filterOrders(Request $request)
     {
-        DB::beginTransaction();
+        $filters = [
+            'min_product_price' => max($request->query('min_product_price', 0), 0),
+            'max_product_price' => max($request->query('max_product_price', 1000000), 0),
+            'category_name' => $request->query('category_name'),
+            'min_user_age' =>  max($request->query('min_user_age', 18), 0),
+            'max_user_age' =>  max($request->query('max_user_age', 100), 0),
+            'min_total_price' =>  max($request->query('min_total_price', 0), 0),
+            'max_total_price' =>  max($request->query('max_total_price', 1000000), 0),
+            'min_quantity' =>  max($request->query('min_quantity', 1), 0),
+            'max_quantity' =>  max($request->query('max_quantity', 100), 0),
+        ];
 
         try {
-            $userId = Auth::id();
+            $orders = $this->orderModel->filterOrders($filters);
 
-            $order = $this->orderModel->where('user_id', $userId)->find($id);
-            if (!$order) {
-                return response()->json(['message' => 'Order not found.'], 404);
-            }
-
-            $request->validate([
-                'products' => 'required|array',
-                'products.*.id' => 'required|exists:products,id',
-                'products.*.quantity' => 'required|integer|min:1',
-            ]);
-
-            // Cập nhật sản phẩm trong session
-            session(['order_products' => $request->products]);
-
-            $totalPrice = 0;
-
-            foreach ($request->products as $product) {
-                $productModel = $this->productModel->find($product['id']);
-
-                if ($productModel->stock < $product['quantity']) {
-                    return response()->json(['message' => 'Not enough stock for product: ' . $productModel['name']], 400);
-                }
-
-                $subtotal = $productModel->price * $product['quantity'];
-                $totalPrice += $subtotal;
-
-                $order->products()->syncWithoutDetaching([$product['id'] => ['quantity' => $product['quantity']]]);
-
-                $productModel->stock -= $product['quantity'];
-                $productModel->save();
-            }
-
-            $order->total_price = $totalPrice;
-            $order->save();
-
-            DB::commit();
-            return response()->json(['message' => 'Order updated successfully.', 'order' => new OrderResource($order)], 200);
+            return response()->json([
+                'message' => 'Filtered orders retrieved successfully.',
+                'data' => OrderResource::collection($orders),
+            ], 200);
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating order: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to update order.', 'error' => $e->getMessage()], 500);
+            Log::error('Error retrieving filtered orders: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Failed to retrieve filtered orders.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-    }
-
-    public function forgetOrder()
-    {
-        // Xóa sản phẩm khỏi session
-        session()->forget('order_products');
-
-        return response()->json(['message' => 'Order products cleared from session.'], 200);
     }
 }
