@@ -125,4 +125,35 @@ class OrderController extends Controller
             return response()->json(['message' => 'Failed to retrieve order.', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function filterOrders(Request $request)
+    {
+        $filters = [
+            'min_product_price' => max($request->query('min_product_price', 0), 0),
+            'max_product_price' => max($request->query('max_product_price', 1000000), 0),
+            'category_name' => $request->query('category_name'),
+            'min_user_age' =>  max($request->query('min_user_age', 18), 0),
+            'max_user_age' =>  max($request->query('max_user_age', 100), 0),
+            'min_total_price' =>  max($request->query('min_total_price', 0), 0),
+            'max_total_price' =>  max($request->query('max_total_price', 1000000), 0),
+            'min_quantity' =>  max($request->query('min_quantity', 1), 0),
+            'max_quantity' =>  max($request->query('max_quantity', 100), 0),
+        ];
+
+        try {
+            $orders = $this->orderModel->filterOrders($filters);
+
+            return response()->json([
+                'message' => 'Filtered orders retrieved successfully.',
+                'data' => OrderResource::collection($orders),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error retrieving filtered orders: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Failed to retrieve filtered orders.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

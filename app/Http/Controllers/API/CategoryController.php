@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -60,22 +61,21 @@ class CategoryController extends Controller
         }
     }
 
-    public function createCategory(Request $request)
+    public function createCategory(CategoryRequest $request)
     {
         DB::beginTransaction();
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-            ]);
+            $validated = $request->validated();
 
-            $existingCategory = $this->categoryModel->where('name', $request->name)->first();
+
+            $existingCategory = $this->categoryModel->where('name', $validated['name'])->first();
 
             if ($existingCategory) {
                 return response()->json(['message' => 'Category has been created.'], 404);
             }
 
             $category = $this->categoryModel->create([
-                'name' => $request->name,
+                'name' => $validated['name']
             ]);
 
             DB::commit();
@@ -93,13 +93,11 @@ class CategoryController extends Controller
         }
     }
 
-    public function updateCategory(Request $request, $id)
+    public function updateCategory(CategoryRequest $request, $id)
     {
         DB::beginTransaction();
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-            ]);
+            $validated = $request->validated();
 
             $category = $this->categoryModel->find($id);
 
@@ -108,7 +106,7 @@ class CategoryController extends Controller
             }
 
             $existingCategory = $this->categoryModel
-                ->where('name', $request->name)
+                ->where('name', $validated['name'])
                 ->where('id', '!=', $id)
                 ->first();
 
@@ -116,7 +114,7 @@ class CategoryController extends Controller
                 return response()->json(['message' => 'Category has been existed.'], 404);
             }
 
-            $category->name = $request->name;
+            $category->name = $validated['name'];
             $category->save();
 
             DB::commit();

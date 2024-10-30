@@ -55,6 +55,9 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/products/{id}', [ProductController::class, 'updateProduct']);
         Route::delete('/products/{id}', [ProductController::class, 'deleteProduct']);
         Route::get('/products/{id}', [ProductController::class, 'getProductById']);
+
+        //Orders
+        Route::get('/order-filter', [OrderController::class, 'filterOrders']);
     });
 });
 
