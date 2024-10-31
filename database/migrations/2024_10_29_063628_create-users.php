@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('imageUrl')->nullable();
             $table->integer('age')->nullable();
-            $table->enum('role', ['User', 'Admin'])->default('User');
+            $table->enum('role', ['User', 'Admin', 'Guest'])->default('User');
             $table->boolean('isVerify')->default(false);
             $table->string('social_id')->nullable();
             $table->string('social_type')->nullable();

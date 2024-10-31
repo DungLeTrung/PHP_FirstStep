@@ -57,7 +57,7 @@ Route::group(['middleware' => ['auth', 'admin']], function () {
 
 //AUTH
 Route::get('/register', [AuthController::class,'index'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->name('register.execute');
 
 Route::get('/verify-otp', [AuthController::class, 'showOtpVerificationForm'])->name('verify.otp');
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
@@ -66,12 +66,12 @@ Route::get('/send-otp', [AuthController::class, 'showSendOTPForm'])->name('send.
 Route::post('/send-otp', [AuthController::class, 'sendOtp'])->name('send.OTP');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login.execute');
 
-Route::get('/send-otp-forgot-password', [AuthController::class, 'showSendOTPForgotPassForm'])->name('send_forgot_password.OTP');
+Route::get('/send-otp-forgot-password', [AuthController::class, 'showSendOTPForgotPassForm'])->name('send_forgot_password_UI.OTP');
 Route::post('/send-otp-forgot-password', [AuthController::class, 'sendOtpForgotPassword'])->name('send_forgot_password.OTP');
 
-Route::get('/verify-otp-forgot-password', [AuthController::class, 'showOtpVerificationForgotPasswordForm'])->name('verify_forgot_password.otp');
+Route::get('/verify-otp-forgot-password', [AuthController::class, 'showOtpVerificationForgotPasswordForm'])->name('verify_forgot_password_UI.otp');
 Route::post('/verify-otp-forgot-password', [AuthController::class, 'verifyOtpForPasswordReset'])->name('verify_forgot_password.otp');;
 
 Route::get('/forgot-password/reset', [AuthController::class, 'showPasswordResetForm'])->name('password_reset.otp');
