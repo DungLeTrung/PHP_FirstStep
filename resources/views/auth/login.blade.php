@@ -11,7 +11,7 @@
                     <h3>Login</h3>
                 </div>
                 <div class="card-body">
-                    <form id="loginForm" method="POST" action="/login">
+                    <form id="loginForm" method="POST" action="{{ route('login.execute') }}">
                         @csrf
                         <div class="form-group mb-3">
                             <label for="email">Email:</label>

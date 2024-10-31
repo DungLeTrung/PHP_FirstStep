@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id()->autoIncrement();
             $table->integer('user_id');
             $table->integer('total_price')->default(0);
-            $table->string('status')->default('pending');
+            $table->string('status')->default('PENDING');
             $table->timestamps();
         });
     }

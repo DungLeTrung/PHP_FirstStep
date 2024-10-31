@@ -24,6 +24,9 @@ Route::post('/send-otp', [AuthController::class, 'sendOtp']);
 Route::post('/verify-account', [AuthController::class, 'verifyAccount']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+Route::post('/orders', [OrderController::class, 'createOrder']);
+Route::get('/check-cache', [OrderController::class, 'viewGuestOrderCache']);
+
 
 Route::middleware('auth:api')->group(function () {
     //User
@@ -32,7 +35,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/edit-profile', [UserController::class, 'editProfile']);
     Route::get('/detail-profile', [UserController::class, 'detailProfile']);
     //Order
-    Route::post('/orders', [OrderController::class, 'createOrder']);
     Route::get('/orders', [OrderController::class, 'getOrder']);
     Route::get('/orders/{id}', [OrderController::class, 'getOrderById']);
 
@@ -58,6 +60,7 @@ Route::middleware('auth:api')->group(function () {
 
         //Orders
         Route::get('/order-filter', [OrderController::class, 'filterOrders']);
+        Route::put('/order-process/{id}', [OrderController::class, 'orderProcessing']);
     });
 });
 
