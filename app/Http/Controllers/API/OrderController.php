@@ -39,11 +39,10 @@ class OrderController extends Controller
             ]);
 
             $cacheKey = 'cart_guest_' . $userId;
-            
+
             Cache::forget($cacheKey);
 
             $productsInCache = Cache::get($cacheKey, []);
-
             if (empty($productsInCache)) {
                 $productsInCache = $request->input('products');
                 Cache::put($cacheKey, $productsInCache, 60);
@@ -82,7 +81,10 @@ class OrderController extends Controller
             $order->save();
 
             DB::commit();
-            return response()->json(['message' => 'Order created successfully.', 'order' => new OrderResource($order)], 201);
+            return response()->json([
+                'message' => 'Order created successfully.',
+                'order' => new OrderResource($order),
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating order: ' . $e->getMessage());
