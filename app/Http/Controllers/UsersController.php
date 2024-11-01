@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
+use function App\Http\uploadFile;
+
 class UsersController extends Controller
 {
     protected $user;
@@ -37,7 +39,7 @@ class UsersController extends Controller
             ];
 
             if ($request->hasFile('image')) {
-                $validatedData['imageUrl'] = $this->user->uploadFile($request->file('image'));
+                $validatedData['imageUrl'] = uploadFile($request->file('image'));
             }
 
             $validatedData['password'] = bcrypt($request->password);
@@ -63,7 +65,7 @@ class UsersController extends Controller
                 if ($user->image) {
                     Storage::disk('public')->delete($user->image);
                 }
-                $validatedData['imageUrl'] = $this->user->uploadFile($request->file('image'));
+                $validatedData['imageUrl'] = uploadFile($request->file('image'));
             }
 
             if ($request->filled('password')) {

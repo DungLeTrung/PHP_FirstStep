@@ -54,16 +54,6 @@ class User extends Authenticatable
         return $data->get();
     }
 
-    public function uploadFile($file)
-    {
-        $publicPath = 'uploads';
-        $absolutePath = public_path($publicPath);
-        File::makeDirectory($absolutePath, 0755, true, true);
-        $file->move($absolutePath, $file->getClientOriginalName());
-
-        return $publicPath . '/' . $file->getClientOriginalName();
-    }
-
     public function orders()
     {
         return $this->hasMany(Order::class);
