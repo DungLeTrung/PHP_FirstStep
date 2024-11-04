@@ -18,24 +18,23 @@
         @csrf
         <h2 class="text-center mb-4">Create Order</h2>
 
-        <div class="form-group">
-            <label for="products">Select Products</label>
-            <select id="products" name="product_id[]" class="form-control" multiple>
+        <div class="mb-3">
+            <label for="products" class="form-label">Select Products</label>
+            <select id="products" name="product_id[]" class="form-select" multiple>
                 @foreach ($products as $product)
                     <option value="{{ $product->id }}">{{ $product->name }} - {{ $product->price }}$</option>
                 @endforeach
             </select>
-            <small class="form-text text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple products.</small>
+            <div class="form-text">Hold Ctrl (Windows) or Command (Mac) to select multiple products.</div>
         </div>
 
-        <div id="quantitiesContainer"></div>
+        <div id="quantitiesContainer" class="mb-3"></div>
 
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary my-2">Place Order</button>
-            <button type="button" class="btn btn-success my-2" onclick="window.location.href='{{ route('orders.index') }}'">My Orders</button>
+        <div class="d-flex justify-content-center gap-3">
+            <button type="submit" class="btn btn-primary">Place Order</button>
+            <button type="button" class="btn btn-outline-success" onclick="window.location.href='{{ route('orders.index') }}'">My Orders</button>
         </div>
     </form>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

@@ -8,14 +8,19 @@ function showVanillaToast(content, type) {
     });
 }
 
-function formValidAjax(xhr, status = null, error = null) {
-    if (xhr.status == 422) {
-        let errors = xhr.responseJSON.errors;
-        $.each(errors, function(key, value) {
-            console.log(key, value);
-            $('.valid_error-' + key).html(value[0]);
+function formValidAjax(xhr) {
+    const response = xhr.responseJSON;
+    const message = response && response.message ? response.message : 'An error occurred. Please try again.';
+
+    showVanillaToast(message, 'error');
+    if (response && response.errors) {
+        $.each(response.errors, function (field, errors) {
+            const errorElement = $(`#${field}-error`);
+            if (errorElement.length) {
+                errorElement.show().text(errors[0]);
+            } else {
+                showVanillaToast(errors[0], 'error');
+            }
         });
-    } else {
-        showVanillaToast(xhr.responseJSON.message, 'error')
     }
 }

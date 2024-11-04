@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container vh-100 d-flex align-items-center">
-    <div class="row justify-content-center mt-5 col-md-10">
+    <div class="row justify-content-center mx-auto col-md-10">
         <div class="">
             <div class="card">
                 <div class="card-header text-center">

@@ -2,32 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use App\Models\Product;
-use App\Models\User;
+use App\Services\OrderService;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    protected $order;
-    protected $product;
+    protected $orderService;
+    protected $productService;
 
-    public function __construct(Order $order, Product $product)
+    public function __construct(ProductService $productService, OrderService $orderService)
     {
-        $this->order = $order;
-        $this->product = $product;
+        $this->orderService = $orderService;
+        $this->productService = $productService;
     }
+
     public function create()
     {
-        $products = $this->product->all();
+        $products = $this->productService->getAllProducts();
         return view('orders.create', compact('products'));
     }
 
     public function store(Request $request)
     {
-        DB::beginTransaction();
-
         try {
             $validatedData = $request->validate([
                 'product_id' => 'required|array',
@@ -35,52 +32,20 @@ class OrderController extends Controller
                 'quantity' => 'required|array',
                 'quantity.*' => 'integer|min:1',
             ]);
-
-            foreach ($validatedData['product_id'] as $index => $productId) {
-                $product = $this->product->findOrFail($productId);
-                if ($product->stock < $validatedData['quantity'][$index]) {
-                    return redirect()
-                        ->back()
-                        ->withErrors(['quantity' => 'Not enough stock for product: ' . $product->name])
-                        ->withInput();
-                }
+            
+            $order = $this->orderService->createOrder($validatedData, auth()->id());
+            if($order) {
+                return redirect()->route('orders.index')->with('success', 'Order created successfully and stock updated.');
             }
-
-            $totalAmount = 0;
-
-            $order = $this->order->create([
-                'user_id' => auth()->id(),
-                'total_price' => 0,
-            ]);
-
-            foreach ($validatedData['product_id'] as $index => $productId) {
-                $product = $this->product->findOrFail($productId);
-                $totalAmount += $product->price * $validatedData['quantity'][$index];
-
-                $product->stock -= $validatedData['quantity'][$index];
-                $product->save();
-
-                $order->products()->attach($productId, ['quantity' => $validatedData['quantity'][$index]]);
-            }
-
-            $order->total_price = $totalAmount;
-            $order->save();
-
-            DB::commit();
-
-            return redirect()->route('orders.index')->with('success', 'Order created successfully and stock updated.');
+            return redirect()->back()->withErrors(['error' => 'Order created unsuccessfully!!!'])->withInput();
         } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()
-                ->back()
-                ->withErrors(['error' => 'An error occurred: ' . $e->getMessage()])
-                ->withInput();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()])->withInput();
         }
     }
 
     public function index()
     {
-        $orders = $this->order->where('user_id', auth()->id())->get();
+        $orders = $this->orderService->getUserOrders(auth()->id());
         return view('orders.index', compact('orders'));
     }
 }
