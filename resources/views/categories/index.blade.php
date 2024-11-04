@@ -15,7 +15,6 @@
         </div>
     @endif
 
-    <button id="createCategoryBtn" class="btn btn-primary mb-3">Create Category</button>
 
     <!-- Modal -->
     <div class="modal fade" id="categoryModel" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
@@ -68,33 +67,41 @@
         </div>
     </div>
 
-    <table id="categoriesTable" class="table table-hover table-dark table-striped table-bordered">
-        <thead class="">
-            <tr>
-                <th scope="col" style="width: 15%">ID</th>
-                <th scope="col">Name</th>
-                <th scope="col" style="width: 15%">ACTION</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($categories as $category)
-                <tr>
-                    <th scope="row">{{ $category->id }}</th>
-                    <td>{{ $category->name }}</td>
-                    <td>
-                        <div style="display: flex; gap: 5px">
-                            <button class="btn btn-light updateCategoryBtn" data-id="{{ $category->id }}"
-                                data-name="{{ $category->name }}">
-                                Update
-                            </button>
-                            <button class="btn btn-danger deleteCategoryBtn" data-id="{{ $category->id }}"
-                                data-bs-toggle="modal" data-bs-target="#deleteCategoryModal">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+    <div class="my-5 container">
+        <div>
+            <button id="createCategoryBtn" class="btn btn-primary mb-3">Create Category</button>
+
+            <div class="table-responsive">
+                <table id="categoriesTable" class="table table-hover table-dark table-striped table-bordered">
+                    <thead class="">
+                        <tr>
+                            <th scope="col" style="width: 15%">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col" style="width: 15%">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($categories as $category)
+                            <tr>
+                                <th scope="row">{{ $category->id }}</th>
+                                <td>{{ $category->name }}</td>
+                                <td>
+                                    <div style="display: flex; gap: 5px">
+                                        <button class="btn btn-light updateCategoryBtn" data-id="{{ $category->id }}"
+                                            data-name="{{ $category->name }}">
+                                            Update
+                                        </button>
+                                        <button class="btn btn-danger deleteCategoryBtn" data-id="{{ $category->id }}"
+                                            data-bs-toggle="modal" data-bs-target="#deleteCategoryModal">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script>
         $(document).ready(function() {
