@@ -3,9 +3,9 @@
 @section('title', 'Login')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center my-5">
-        <div class="col-md-6">
+<div class="container vh-100 d-flex align-items-center" >
+    <div class="row justify-content-center mx-auto col-md-10">
+        <div class="">
             <div class="card">
                 <div class="card-header text-center">
                     <h3>Login</h3>
@@ -17,7 +17,7 @@
                             <label for="email">Email:</label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
-                        <div class="form-group mb-3 ">
+                        <div class="form-group mb-3">
                             <label for="password">Password:</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>

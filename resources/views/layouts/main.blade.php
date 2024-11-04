@@ -20,26 +20,29 @@
 </head>
 
 <body>
-
     <!-- Header -->
-    @include('partials.header')
-
-    <!-- Main Content -->
-    {{-- <div style="height: calc(100vh - (56px + 72px));"> --}}
     <div>
-        <div class="container pt-5">
-            <div style="width: 100%">
-                @yield('content')
-            </div>
+        @include('partials.header')
+
+        <!-- Main Content -->
+        <div class="d-flex flex-column min-vh-100">
+            <main class="flex-grow-1">
+                <div class="container my-5">
+                    <div class="col-12 col-md-10 col-lg-8 mx-auto">
+                        @yield('content')
+                    </div>
+                </div>
+            </main>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Footer -->
+        @include('partials.footer')
     </div>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Footer -->
-    @include('partials.footer')
 </body>
+
 <script src="{{ asset('js/custom.js') }}"></script>
 
 </html>

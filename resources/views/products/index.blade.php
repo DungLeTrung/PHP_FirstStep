@@ -15,8 +15,6 @@
         </div>
     @endif
 
-    <button id="createProductBtn" class="btn btn-primary mb-3">Create Product</button>
-
     <!-- Modal -->
     <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -98,53 +96,60 @@
         </div>
     </div>
 
+    <div class="my-5 container">
+        <div>
+            <button id="createProductBtn" class="btn btn-primary mb-3">Create Product</button>
 
+            <div class="table-responsive">
+                <table id="productsTable" class="table table-hover table-dark table-striped table-bordered">
 
-
-    <table id="productsTable" class="table table-hover table-dark table-striped table-bordered">
-        <thead class="">
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">NAME</th>
-                <th scope="col">DESCRIPTION</th>
-                <th scope="col">PRICE</th>
-                <th scope="col">STOCK</th>
-                <th scope="col">CATEGORY</th>
-                <th scope="col">ACTION</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($products as $product)
-                <tr>
-                    <th scope="row">{{ $product->id }}</th>
-                    <td>{{ $product->name }}</td>
-                    <td>{{ $product->description }}</td>
-                    <td>{{ $product->price }}</td>
-                    <td>{{ $product->stock }}</td>
-                    <td>
-                        @foreach ($product->categories as $category)
-                            <span class="badge bg-info text-dark p-10">{{ $category->name }}</span>
-                        @endforeach
-                    </td>
-                    <td>
-                        <div class="flex">
-                            <button class="btn btn-light updateProductBtn" data-id="{{ $product->id }}"
-                                data-name="{{ $product->name }}" data-description="{{ $product->description }}"
-                                data-price="{{ $product->price }}" data-stock="{{ $product->stock }}">
-                                Update
-                            </button>
-                            <button class="btn btn-danger deleteProductBtn" data-id="{{ $product->id }}"
-                                data-bs-toggle="modal" data-bs-target="#deleteProductModal">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="text-center">No products available</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+                    <thead class="">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">NAME</th>
+                            <th scope="col">DESCRIPTION</th>
+                            <th scope="col">PRICE</th>
+                            <th scope="col">STOCK</th>
+                            <th scope="col">CATEGORY</th>
+                            <th scope="col">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($products as $product)
+                            <tr>
+                                <th scope="row">{{ $product->id }}</th>
+                                <td>{{ $product->name }}</td>
+                                <td>{{ $product->description }}</td>
+                                <td>{{ $product->price }}</td>
+                                <td>{{ $product->stock }}</td>
+                                <td>
+                                    @foreach ($product->categories as $category)
+                                        <span class="badge bg-info text-dark p-10">{{ $category->name }}</span>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    <div class="gap-3" style="display: flex">
+                                        <button class="btn btn-light updateProductBtn" data-id="{{ $product->id }}"
+                                            data-name="{{ $product->name }}"
+                                            data-description="{{ $product->description }}"
+                                            data-price="{{ $product->price }}" data-stock="{{ $product->stock }}">
+                                            Update
+                                        </button>
+                                        <button class="btn btn-danger deleteProductBtn" data-id="{{ $product->id }}"
+                                            data-bs-toggle="modal" data-bs-target="#deleteProductModal">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">No products available</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <script>
         $(document).ready(function() {
