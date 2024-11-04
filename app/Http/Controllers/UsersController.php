@@ -6,23 +6,21 @@ use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-
-use function App\Http\uploadFile;
+use App\Services\UserService;
 
 class UsersController extends Controller
 {
-    protected $user;
-    public function __construct(User $user)
+    protected $userService;
+
+    public function __construct(UserService $userService)
     {
-        $this->user = $user;
+        $this->userService = $userService;
     }
 
     public function index(Request $request)
     {
-        $users = $this->user->getAllUsers($request);
+        $users = $this->userService->getAllUsers($request);
         return view('users.index', compact('users'));
     }
 
@@ -31,20 +29,7 @@ class UsersController extends Controller
         DB::beginTransaction();
 
         try {
-            $validatedData = [
-                'email' => $request->email,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'age' => $request->age,
-            ];
-
-            if ($request->hasFile('image')) {
-                $validatedData['imageUrl'] = uploadFile($request->file('image'));
-            }
-
-            $validatedData['password'] = bcrypt($request->password);
-
-            $this->user->create($validatedData);
+            $this->userService->createUser($request);
             DB::commit();
             return redirect('/users')->with('success', 'User created successfully.');
         } catch (\Exception $e) {
@@ -59,24 +44,8 @@ class UsersController extends Controller
         DB::beginTransaction();
 
         try {
-            $validatedData = $request->validated();
-
-            if ($request->hasFile('image')) {
-                if ($user->image) {
-                    Storage::disk('public')->delete($user->image);
-                }
-                $validatedData['imageUrl'] = uploadFile($request->file('image'));
-            }
-
-            if ($request->filled('password')) {
-                $validatedData['password'] = bcrypt($request->password);
-            } else {
-                unset($validatedData['password']);
-            }
-
-            $user->update($validatedData);
+            $this->userService->updateUser($request, $user);
             DB::commit();
-
             return redirect('/users')->with('success', 'User updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -95,18 +64,13 @@ class UsersController extends Controller
         DB::beginTransaction();
 
         try {
-            if ($user->image) {
-                Storage::disk('public')->delete($user->image);
-            }
-            $user->delete();
+            $this->userService->deleteUser($user);
             DB::commit();
             return redirect('/users')->with('success', 'User deleted successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error deleting users: ' . $e->getMessage());
             return redirect()->back();
         }
-
     }
 }

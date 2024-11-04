@@ -12,12 +12,6 @@ class Category extends Model
 
     protected $fillable = ['name'];
 
-    public function getAllCategories() {
-        $data = $this;
-
-        return $data->get();
-    }
-
     public function products()
     {
         return $this->belongsToMany(Product::class, 'categories_products');

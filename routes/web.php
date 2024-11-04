@@ -47,16 +47,17 @@ Route::group(['middleware' => ['auth', 'admin']], function () {
     Route::delete('/products/{id}', [ProductsController::class, 'delete'])->name('products.delete');
     Route::get('/products/{id}/edit', [ProductsController::class, 'edit'])->name('products.edit');
 
-    Route::get('/categories', [CategoriesController::class,'index'])->name('category');
-    Route::get('/categories', [CategoriesController::class,'index'])->name('category.index');
-    Route::post('/categories', [CategoriesController::class, 'store'])->name('category.store');
-    Route::put('/categories/{id}', [CategoriesController::class, 'update'])->name('category.update');
-    Route::delete('/categories/{id}', [CategoriesController::class, 'delete'])->name('category.delete');
+    Route::get('/categories', [CategoriesController::class,'index'])->name('categories');
+    Route::get('/categories', [CategoriesController::class,'index'])->name('categories.index');
+    Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{id}', [CategoriesController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{id}', [CategoriesController::class, 'delete'])->name('categories.delete');
+    Route::get('/categories/{id}/edit', [ProductsController::class, 'edit'])->name('categories.edit');
 });
 
 
 //AUTH
-Route::get('/register', [AuthController::class,'index'])->name('register');
+Route::get('/register', [AuthController::class,'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.execute');
 
 Route::get('/verify-otp', [AuthController::class, 'showOtpVerificationForm'])->name('verify.otp');

@@ -3,80 +3,82 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CategoryRequest;
-use App\Models\Category;
+use App\Http\Requests\ProductRequest;
+use App\Services\ProductService;
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CategoriesController extends Controller
 {
-    protected $category;
-    public function __construct(Category $category)
+    protected $categoryService;
+
+    public function __construct(CategoryService $categoryService)
     {
-        $this->category = $category;
+        $this->categoryService = $categoryService;
     }
 
     public function index()
     {
-        $categories = $this->category->getAllCategories();
-        return view('categories.index', compact('categories'));
+        try {
+            $categories = $this->categoryService->getAllCategories();
+            return view('categories.index', compact('categories'));
+        } catch (\Exception $e) {
+            Log::error('Error fetching categories: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error fetching products or categories.');
+        }
     }
 
     public function store(CategoryRequest $request)
     {
         try {
-            DB::beginTransaction();
-            $validatedData = [
-                'name' => $request->name,
-            ];
-            $this->category->create($validatedData);
-            DB::commit();
-            return redirect('/categories')->with('success', 'Product created successfully.');
+            $categories = $this->categoryService->store($request);
+            if ($categories) {
+                return redirect('/categories')->with('success', 'Category created successfully.');
+            }
+            return redirect()->back()->with('error', 'Error creating category.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error creating categories: ' . $e->getMessage());
-            return redirect()->back();
+            Log::error('Error creating category: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creating category.');
         }
-
     }
 
     public function update(Request $request, $id)
     {
         try {
-            DB::beginTransaction();
-            $validatedData = [
-                'name' => $request->name,
-            ];
-
-            $category = $this->category->findOrFail($id);
-
-            $category->update($validatedData);
-            DB::commit();
-
-            return redirect('/categories')->with('success', 'Product updated successfully.');
+            $category = $this->categoryService->update($request, $id);
+            if ($category) {
+                return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
+            }
+            return redirect()->back()->with('error', 'Error updating category.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating categories: ' . $e->getMessage());
-            return redirect()->back();
+            Log::error('Error updating category: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating category.');
         }
-
     }
 
     public function delete($id)
     {
         try {
-            DB::beginTransaction();
-            $category = $this->category->findOrFail($id);
-
-            $category->delete();
-            DB::commit();
-
-            return redirect('/categories')->with('success', 'Product deleted successfully.');
+            if ($this->categoryService->delete($id)) {
+                return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+            }
+            return redirect()->back()->with('error', 'Error deleting category.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error deleting categories: ' . $e->getMessage());
-            return redirect()->back();
+            Log::error('Error deleting category: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting category.');
         }
+    }
 
+    public function edit($id)
+    {
+        try {
+            $category = $this->categoryService->find($id);
+
+            return view('categories.edit', compact('product', 'categories'));
+        } catch (\Exception $e) {
+            Log::error('Error fetching product or categories: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error fetching product or categories.');
+        }
     }
 }

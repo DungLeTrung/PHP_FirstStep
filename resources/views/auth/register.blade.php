@@ -12,7 +12,7 @@
                     </div>
                     <div class="card-body">
 
-                        <form id="registerForm" action="{route('register'}}">
+                        <form id="registerForm" action="{{route('register.execute')}}">
                             @csrf
 
                             <!-- Email -->
@@ -29,13 +29,8 @@
 
                             <!-- Confirm Password -->
                             <div class="mb-3">
-                                <label for="
-
-                                " class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="
-
-                                "
-                                    name="password_confirmation" required>
+                                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
                                 <div id="password-error" class="text-danger mt-2" style="display:none;">Passwords do not
                                     match</div>
                             </div>
@@ -77,7 +72,10 @@
                     var formData = $(this).serialize();
 
                     var password = $('#password').val();
+                    console.log(password)
                     var confirmPassword = $('#password_confirmation').val();
+                    console.log(confirmPassword)
+
 
                     if (password !== confirmPassword) {
                         $('#password-error').show().text("Passwords do not match.");

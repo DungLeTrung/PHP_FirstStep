@@ -38,22 +38,6 @@ class User extends Authenticatable
         // You can specify any casting rules for your fields here, if necessary.
     ];
 
-    public function getAllUsers($request)
-    {
-        $data = $this->where('role', '!=', 'Admin');;
-
-        $ageFilter = $request->query('age_filter');
-
-        if ($ageFilter) {
-            $ageRange = explode('-', $ageFilter);
-            $minAge = (int) $ageRange[0];
-            $maxAge = (int) $ageRange[1];
-
-            $data = $data->whereBetween('age', [$minAge, $maxAge]);
-        }
-        return $data->get();
-    }
-
     public function orders()
     {
         return $this->hasMany(Order::class);

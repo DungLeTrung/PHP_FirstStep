@@ -41,7 +41,12 @@
                     data: $(this).serialize(),
                     success: function(response) {
                         showVanillaToast(response.message, 'success');
-                        $('#otpVerificationForm')[0].reset();
+                        setTimeout(function() {
+                                if (response.redirect) {
+                                    window.location.href = response.redirect('/login');
+                                }
+                                $('#otpVerificationForm')[0].reset();
+                            }, 3000);
                     },
                     error: function(xhr) {
                         formValidAjax(xhr);

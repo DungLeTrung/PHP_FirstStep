@@ -3,110 +3,85 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
-use App\Models\Category;
-use App\Models\Product;
+use App\Services\ProductService;
+use App\Services\CategoryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductsController extends Controller
 {
-    protected $product;
-    protected $category;
+    protected $productService;
+    protected $categoryService;
 
-    public function __construct(Product $product, Category $category)
+    public function __construct(ProductService $productService, CategoryService $categoryService)
     {
-        $this->product = $product;
-        $this->category = $category;
-
+        $this->productService = $productService;
+        $this->categoryService = $categoryService;
     }
 
     public function index()
     {
-        $products = $this->product->getAllProducts();
-        $categories = $this->category->all();
-        return view('products.index', compact('products', 'categories'));
+        try {
+            $products = $this->productService->getAllProducts();
+            $categories = $this->categoryService->getAllCategories();
+            return view('products.index', compact('products', 'categories'));
+        } catch (\Exception $e) {
+            Log::error('Error fetching products or categories: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error fetching products or categories.');
+        }
     }
 
     public function store(ProductRequest $request)
     {
-        DB::beginTransaction();
-
         try {
-            $validatedData = [
-                'name' => $request->name,
-                'description' => $request->description,
-                'stock' => $request->stock,
-                'price' => $request->price,
-            ];
-
-            $product = $this->product->create($validatedData);
-
-            if ($request->has('category')) {
-                $product->categories()->sync($request->category);
+            $product = $this->productService->store($request);
+            if ($product) {
+                return redirect('/products')->with('success', 'Product created successfully.');
             }
-            DB::commit();
-            return redirect('/products')->with('success', 'Product created successfully.');
+            return redirect()->back()->with('error', 'Error creating product.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error creating products: ' . $e->getMessage());
-            return redirect()->back();
+            Log::error('Error creating product: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creating product.');
         }
     }
 
     public function update(Request $request, $id)
     {
-        DB::beginTransaction();
-
         try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'stock' => 'required|integer',
-                'price' => 'required|numeric',
-                'category' => 'array',
-            ]);
-
-            $product = $this->product->findOrFail($id);
-
-            $product->update($validatedData);
-
-            $product->categories()->sync($request->category);
-            DB::commit();
-
-            return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+            $product = $this->productService->update($request, $id);
+            if ($product) {
+                return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+            }
+            return redirect()->back()->with('error', 'Error updating product.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating products: ' . $e->getMessage());
-            return redirect()->back();
+            Log::error('Error updating product: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error updating product.');
         }
-
     }
 
     public function delete($id)
     {
-        DB::beginTransaction();
-
         try {
-            $product = $this->product->findOrFail($id);
-
-            $product->categories()->detach();
-            $product->delete();
-            DB::commit();
-            return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+            if ($this->productService->delete($id)) {
+                return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+            }
+            return redirect()->back()->with('error', 'Error deleting product.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error deleting products: ' . $e->getMessage());
-            return redirect()->back();
+            Log::error('Error deleting product: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting product.');
         }
-
     }
 
     public function edit($id)
     {
-        $product = $this->product->with('categories')->findOrFail($id);
-        $categories = $this->category->all();
+        try {
+            $product = $this->productService->find($id);
+            $categories = $this->categoryService->getAllCategories();
 
-        return view('products.edit', compact('product', 'categories'));
+            return view('products.edit', compact('product', 'categories'));
+        } catch (\Exception $e) {
+            Log::error('Error fetching product or categories: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error fetching product or categories.');
+        }
     }
 }

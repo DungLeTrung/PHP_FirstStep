@@ -26,11 +26,4 @@ class Product extends Model
     {
         return $this->belongsToMany(Order::class, 'order_product')->withPivot('quantity');
     }
-
-    public function getAllProducts()
-    {
-        $data = $this;
-
-        return $data->get();
-    }
 }
